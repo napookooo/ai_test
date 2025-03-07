@@ -47,7 +47,7 @@ float rand11(){
 
 void add_vec(const float *xs, const float *ys, float *result, int n){
   for (int i=0; i<n; i++){
-    result[i] = xs[i] * ys[i];
+    result[i] = xs[i] + ys[i];
   }
 }
 
@@ -126,7 +126,7 @@ void nn_gradient(neural_network *nn, float y_hat, neural_network *grad){
     float dC_da1 = dC_da2 * da2_dz2 * nn->w2[i];
     float da1_dz1 = sigmoid(nn->a1[i]) * (1-sigmoid(nn->a1[i]));
     for (int j=0; j<IMAGE_WIDTH*IMAGE_HEIGHT*IMAGE_CHANNELS; j++){
-      float dz1_dw1 = nn->a0[j];
+      float dz1_dw1 = nn->a1[j];
       grad->w1[j][i] = dC_da1*da1_dz1*dz1_dw1;
     }
     float dz1_db1 = 1;
