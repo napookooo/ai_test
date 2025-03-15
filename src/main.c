@@ -1,4 +1,3 @@
-#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -35,7 +34,7 @@ float dot_product(const float *xs, const float *ys, int n) {
   return sum;
 }
 
-void matrix_mul(const float *matrix, float *xs, float *result, int rows, int cols){
+void matrix_mul(const float *matrix, const float *xs, float *result, int rows, int cols){
   for (int i=0; i<rows; i++){
     result[i] = dot_product(matrix + i * cols, xs, cols);
   }
@@ -74,7 +73,7 @@ void load_dataset(const char *path, const char *label, int offset, int count, fl
 
 typedef struct{
   float a0[IMAGE_WIDTH*IMAGE_HEIGHT*IMAGE_CHANNELS];
-  float w1[HIDDEN_SIZE][IMAGE_WIDTH*IMAGE_HEIGHT*IMAGE_CHANNELS];
+  float w1[IMAGE_WIDTH*IMAGE_HEIGHT*IMAGE_CHANNELS][HIDDEN_SIZE];
   float a1[HIDDEN_SIZE];
   float b1[HIDDEN_SIZE];
   float z1[HIDDEN_SIZE];
@@ -126,7 +125,7 @@ void nn_gradient(neural_network *nn, float y_hat, neural_network *grad){
     float dC_da1 = dC_da2 * da2_dz2 * nn->w2[i];
     float da1_dz1 = sigmoid(nn->a1[i]) * (1-sigmoid(nn->a1[i]));
     for (int j=0; j<IMAGE_WIDTH*IMAGE_HEIGHT*IMAGE_CHANNELS; j++){
-      float dz1_dw1 = nn->a1[j];
+      float dz1_dw1 = nn->a0[j];
       grad->w1[j][i] = dC_da1*da1_dz1*dz1_dw1;
     }
     float dz1_db1 = 1;
@@ -136,7 +135,7 @@ void nn_gradient(neural_network *nn, float y_hat, neural_network *grad){
 
   // want dC/dw2 = dC/da2 * dz2/da2 * dz2/dw2
   for (int i=0; i<HIDDEN_SIZE; i++){
-    float dz2_dw2 = nn->a0[i];
+    float dz2_dw2 = nn->a1[i];
     grad->w2[i] = dC_da2 * da2_dz2 * dz2_dw2;
   }
 
